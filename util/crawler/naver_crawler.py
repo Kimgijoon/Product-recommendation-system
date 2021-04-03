@@ -42,6 +42,37 @@ class NaverShoppingCrawler(BaseCrawler):
 		res, _ = self._get_html(url)
     data = res['shoppingResult']['products']
 
+    meta_list: List[Dict[str, Optional[str]]] = []
+    sub_url_list: List[str] = [] 
+    date_list: List[str] = []
+    for idx, dic in enumerate(data):
+      if dic['lowMallList'] == None:  continue
+      else:
+        sub_url = dic.get('crUrl', None)
+        product_name = dic.get('productName', None)
+        maker = dic.get('maker', None)
+        low_price = dic.get('lowPrice', None)
+        mouth_review_count = dic.get('mouthReviewCount', None)
+        avg_score = dic.get('scoreInfo', None)
+        product_info = dic.get('characterValue', None).split('|')
+        open_date = dic['openDate']
+
+        if avg_score == '': continue
+
+        meta_list.append({
+          'name': product_name,
+          'low_price': low_price,
+          'avg_score': avg_score,
+          'review_count': mouth_review_count,
+          'maker': maker,
+          'product_info': product_info,
+          'open_data':  open_date
+        })
+        sub_url_list.append(sub_url)
+        date_list.append(int(open_date[:4]))
+
+    return meta_list, sub_url_list, date_list
+
 	def parse_sub_html(self):
 
 		pass
