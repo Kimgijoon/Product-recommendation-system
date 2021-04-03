@@ -17,7 +17,7 @@ pip install -r requirements.txt
 ```
 
 ## Dependency
-* python3, numpy, tensorflow, pymongo, mecab, mecab-ko, mecab-python, sentencepiece
+* python3.6, numpy, tensorflow, pymongo, mecab, mecab-ko, mecab-python, sentencepiece, rich
 
 ## Crawler
 Collect multiple data from specific web site
@@ -39,3 +39,6 @@ python3 main.py --op=c --category=휴대폰
 * `configs`: directory to with some argument
 * `data`: directory where preprocessed data is located (extension is tfrecord)
 * `resources`: directory with vocab files (mecab, sentencepiece, mecab-sentencepiece)
+
+## License
+Apache License 2.0
