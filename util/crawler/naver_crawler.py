@@ -10,7 +10,7 @@ from util.crawler.base_crawler import BaseCrawler
 
 class NaverShoppingCrawler(BaseCrawler):
   
-  def __init__(self, category_name: str):
+	def __init__(self, category_name: str):
     
     self.category_name = category_name
     

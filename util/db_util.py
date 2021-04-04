@@ -3,9 +3,9 @@ from pymongo import MongoClient
 
 
 class MongoController(object):
-
-  def __init__(self, username: str, passwd: str):
-
+	
+	def __init__(self, username: str, passwd: str):
+		  	
     self.connection = MongoClient('mongodb://{}:{}@localhost'.format(username, passwd), 27017)
     self.db = self.connection['naver']
 
