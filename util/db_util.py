@@ -3,9 +3,9 @@ from pymongo import MongoClient
 
 
 class MongoController(object):
-	
-	def __init__(self, username: str, passwd: str):
-		  	
+
+  def __init__(self, username: str, passwd: str):
+
     self.connection = MongoClient('mongodb://{}:{}@localhost'.format(username, passwd), 27017)
     self.db = self.connection['naver']
 
@@ -19,18 +19,18 @@ class MongoController(object):
     db_collection.insert_many(data)
 
   def select_data(self, tb_name: str, query: Dict[str, str]=None) -> Dict[str, str]:
-		"""db>collection에서 document를 select하는 함수
-		Args:
-			tb_name:  collection name
-			query:  such as where i.e. select * from where 
-		Return:
-			result: selected output
-		"""
-		db_collection = self.db[tb_name]
+    """db>collection에서 document를 select하는 함수
+    Args:
+      tb_name:  collection name
+      query:  such as where i.e. select * from where 
+    Return:
+      result: selected output
+    """
+    db_collection = self.db[tb_name]
 
-		result = []
-		if query != None:
-			for dic in db_collection.find():  result.append(dic)
-		else:
-			for dic in db_collection.find(query): result.append(dic)
-		return result
+    result = []
+    if query != None:
+      for dic in db_collection.find():  result.append(dic)
+    else:
+      for dic in db_collection.find(query): result.append(dic)
+    return result

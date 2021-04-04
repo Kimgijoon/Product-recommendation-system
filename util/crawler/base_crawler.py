@@ -3,21 +3,21 @@ from abc import *
 
 class BaseCrawler(metaclass=ABCMeta):
 
-	def __init_(self):
+  def __init_(self):
 
-		pass
+    pass
 
-	@abstractmethod
-	def _get_html(self):
+  @abstractmethod
+  def _get_html(self):
 
-		pass
+    pass
 
-	@abstractclassmethod
-	def parse_main_html(self):
+  @abstractclassmethod
+  def parse_main_html(self):
 
-		pass
+    pass
 
-	@abstractclassmethod
-	def parse_sub_html(self):
+  @abstractclassmethod
+  def parse_sub_html(self):
 
-		pass
+    pass
