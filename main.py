@@ -5,9 +5,39 @@ import tensorflow as tf
 flags = tf.flags
 FLAGS = flags.FLAGS
 
+
+# main operation argument
 flags.DEFINE_string('op', None, '[REQUIRED] Operation code to do')
 flags.mark_flag_as_required('op')
 
+# create pretrain data 
+flags.DEFINE_string("input_file", None, "Input raw text file (or comma-separated list of files).")
+flags.DEFINE_string("output_file", None, "Output TF example file (or comma-separated list of files).")
+flags.DEFINE_string("vocab_file", None, "The vocabulary file that the electra-albert model was trained on.")
+flags.DEFINE_string("spm_model", None, "sentencepiece model file")
+flags.DEFINE_string("mecab_file", None, "mecab file")
+flags.DEFINE_bool("parallel",
+          False,
+          "Option to use multiprocess to speed up make tfrecord wokring with multiple raw files."
+          "output files will be written next to input files if non are passed.")
+
+flags.DEFINE_bool("do_lower_case",
+                  True,
+                  "Whether to lower case the input text. Should be True for uncased "
+                  "models and False for cased models.")
+flags.DEFINE_bool("do_whole_word_mask",
+                  False,
+                  "Whether to use whole word masking rather than per-WordPiece masking.")
+flags.DEFINE_integer("max_seq_length", 512, "Maximum sequence length.")
+flags.DEFINE_integer("max_predictions_per_seq", 20, "Maximum number of masked LM predictions per sequence.")
+flags.DEFINE_integer("random_seed", 12345, "Random seed for data generation.")
+flags.DEFINE_integer("dupe_factor", 1, "Number of times to duplicate the input data (with different masks).")
+flags.DEFINE_float("masked_lm_prob", 0.15, "Masked LM probability.")
+flags.DEFINE_float("short_seq_prob",
+                  0.1,
+                  "Probability of creating sequences which are shorter than the maximum length.")
+
+# crawler
 tf.flags.DEFINE_string('category', None, 'Name of category')
 tf.flags.DEFINE_string('config_path', 'configs', 'directory of config file')
 tf.flags.DEFINE_string('config_file', 'category.json', 'config file name')
@@ -15,9 +45,16 @@ tf.flags.DEFINE_string('id', None, 'mongodb id')
 tf.flags.DEFINE_string('passwd', None, 'mongodb password')
 
 
-def main():
+def main(_):
 
-  if FLAGS.Op == 'crawler':
+  if FLAGS.op == 'create_pretrain':
+    import util.create_pretraining_data as cp
+    flags.mark_flag_as_required("input_file")
+    flags.mark_flag_as_required("output_file")
+    flags.mark_flag_as_required("vocab_file")
+    cp.run()
+
+  elif FLAGS.op == 'crawler':
     from util.db_util import MongoController
     from util.crawler.naver_crawler import NaverShoppingCrawler
     
@@ -47,4 +84,4 @@ def main():
 
 if __name__ == '__main__':
 
-  main()
+  tf.compat.v1.app.run()
