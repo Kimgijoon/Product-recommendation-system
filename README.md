@@ -24,11 +24,19 @@ Collect multiple data from specific web site
 
 example:
 ```
-python3 main.py --op=crawler --category=휴대폰
+python3 main.py --op=crawler --category=cellphone
+```
 
-or
-
-python3 main.py --op=c --category=휴대폰
+## Create pretrain data
+example:
+```
+python3 main.py --op=create_pretrain \
+                --input_file=file1, file2, file3 \
+                --output_file=file1.tfrecord, file2.tfrecord, file3.tfrecord \
+                --vocab_file=resources/mecab_sp-32k/tok.vocab \
+                --spm_model=resources/mecab_sp-32k/tok.model \
+                --mecab_file=resources/mecab_sp-32k/tok.json \
+                --parallel=True
 ```
 
 ## Directory
