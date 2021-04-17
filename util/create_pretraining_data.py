@@ -80,7 +80,7 @@ def convert_to_unicode(text):
 
 
 def write_instance_to_example_files(instances,
-                                    tokenizer,
+                                    vocab,
                                     max_seq_length,
                                     max_predictions_per_seq,
                                     output_files):
@@ -93,7 +93,7 @@ def write_instance_to_example_files(instances,
 
   total_written = 0
   for (inst_index, instance) in enumerate(instances):
-    input_ids = tokenizer.convert_tokens_to_ids(instance.tokens)
+    input_ids = vocab.convert_tokens_to_ids(instance.tokens)
     input_mask = [1] * len(input_ids)
     segment_ids = list(instance.segment_ids)
     assert len(input_ids) <= max_seq_length
@@ -296,6 +296,39 @@ def truncate_seq_pair(tokens_a, tokens_b, max_num_tokens, rng):
       trunc_tokens.pop()
 
 
+def parallel_fn(input_file,
+                output_file,
+                max_seq_length,
+                dupe_factor,
+                short_seq_prob,
+                masked_lm_prob,
+                max_predictions_per_seq,
+                rng):
+
+  try:
+    mecab = MeCabTokenizer(FLAGS.mecab_file)
+    sp = SentencePieceTokenizer(FLAGS.spm_model)
+    tokenizer = MeCabSentencePieceTokenizer(mecab, sp)
+    vocab = Vocab(FLAGS.vocab_file)
+
+    instances = create_training_instances([input_file],
+                                          tokenizer,
+                                          max_seq_length,
+                                          dupe_factor,
+                                          short_seq_prob,
+                                          masked_lm_prob,
+                                          max_predictions_per_seq,
+                                          rng)
+    write_instance_to_example_files(instances,
+                                    vocab,
+                                    max_seq_length,
+                                    max_predictions_per_seq,
+                                    [output_file])
+  except Exception as e:
+    tf.logging.info(f'Exception occured {e}')
+    tf.logging.info(traceback.format_exc())
+
+
 def run():
 
   tf.logging.set_verbosity(tf.logging.INFO)
@@ -321,22 +354,36 @@ def run():
   else:
     output_files = FLAGS.output_file.split(",")
 
-  instances = create_training_instances(input_files,
-                                        tokenizer,
-                                        FLAGS.max_seq_length,
-                                        FLAGS.dupe_factor,
-                                        FLAGS.short_seq_prob,
-                                        FLAGS.masked_lm_prob,
-                                        FLAGS.max_predictions_per_seq,
-                                        rng)
+  if not FLAGS.parallel:
+    instances = create_training_instances(input_files,
+                                          tokenizer,
+                                          FLAGS.max_seq_length,
+                                          FLAGS.dupe_factor,
+                                          FLAGS.short_seq_prob,
+                                          FLAGS.masked_lm_prob,
+                                          FLAGS.max_predictions_per_seq,
+                                          rng)
 
-  tf.logging.info("number of instances: %i", len(instances))
-  tf.logging.info("*** Writing to output files ***")
-  for output_file in output_files:
-    tf.logging.info(f"  {output_file}")
+    tf.logging.info("number of instances: %i", len(instances))
+    tf.logging.info("*** Writing to output files ***")
+    for output_file in output_files:
+      tf.logging.info(f"  {output_file}")
 
-  write_instance_to_example_files(instances,
-                                  vocab,
-                                  FLAGS.max_seq_length,
-                                  FLAGS.max_predictions_per_seq,
-                                  output_files)
+    write_instance_to_example_files(instances,
+                                    vocab,
+                                    FLAGS.max_seq_length,
+                                    FLAGS.max_predictions_per_seq,
+                                    output_files)
+  else:
+    if len(input_files) == len(output_files):
+      n_files = len(input_files)
+      with concurrent.futures.ProcessPoolExecutor() as executor:
+        executor.map(parallel_fn,
+                    input_files,
+                    output_files,
+                    [FLAGS.max_seq_length] * n_files,
+                    [FLAGS.dupe_factor] * n_files,
+                    [FLAGS.short_seq_prob] * n_files,
+                    [FLAGS.masked_lm_prob] * n_files,
+                    [FLAGS.max_predictions_per_seq] * n_files,
+                    [rng] * n_files)
