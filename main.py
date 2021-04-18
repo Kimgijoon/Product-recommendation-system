@@ -37,6 +37,14 @@ flags.DEFINE_float("short_seq_prob",
                   0.1,
                   "Probability of creating sequences which are shorter than the maximum length.")
 
+# pretrain
+flags.DEFINE_string("config_file", None, "The config json specifies the model architecture.")
+flags.DEFINE_string('data_home_dir', None, "Path to input directory.")
+flags.DEFINE_string('checkpoint_dir', None, '')
+flags.DEFINE_string('tokenizer_dir', None, '')
+flags.DEFINE_integer('gpu_num', None, 'target GPU number')
+flags.DEFINE_float('gpu_usage', None, 'use of GPU process memory limit')
+
 # crawler
 tf.flags.DEFINE_string('category', None, 'Name of category')
 tf.flags.DEFINE_string('config_path', 'configs', 'directory of config file')
@@ -53,6 +61,23 @@ def main(_):
     flags.mark_flag_as_required("output_file")
     flags.mark_flag_as_required("vocab_file")
     cp.run()
+
+  elif FLAGS.op == 'pretrain':
+    from src.pretrain import PretrainModel
+    model = PretrainModel(FLAGS.tokenizer_dir,
+                          FLAGS.config_file,
+                          FLAGS.data_home_dir,
+                          FLAGS.op,
+                          FLAGS.checkpoint_dir,
+                          FLAGS.gpu_num,
+                          FLAGS.gpu_usage,
+                          is_training=True)
+
+  elif FLAGS.op == 'create_finetune':
+    pass
+
+  elif FLAGS.op == 'finetune':
+    pass
 
   elif FLAGS.op == 'crawler':
     from util.db_util import MongoController
