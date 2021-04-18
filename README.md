@@ -39,6 +39,22 @@ python3 main.py --op=create_pretrain \
                 --parallel=True
 ```
 
+## Train pretrain model
+example:
+```
+python3 main.py --op=pretrain \
+                --data_home_dir=data \
+                --checkpoint_dir=checkpoint \
+                --tokenizer_dir=resources/mecab_sp-32k \
+                --config_file=config/electra_albert_base.json
+```
+
+## Create pretrain data
+example:
+```
+python3 main.py --op=create_finetune
+```
+
 ## Directory
 * `util`: directory related some util files
 * `util/crawler`: directory related to crawler and db controller
