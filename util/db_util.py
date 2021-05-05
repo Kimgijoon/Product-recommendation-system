@@ -92,20 +92,23 @@ class MongoController(object):
     result = {x: sorted(set(result[x]), key=result[x].index) for x in result}
     return selected_user_list
 
-  def get_review(self, tb_name: str) -> List[Dict[str, Any]]:
-    """특정 조건에 맞는 리뷰를 return하는 함수
+  def get_train_data(self, tb_name: str='review') -> Tuple[List[str], List[str]]:
+    """학습을 위한 데이터를 가져오는 함수
     Args:
       tb_name:  collection name
-    Return:
-      selected_review_list: review list for specific conditions
+    Returns:
+      x:  sequence data e.g. [Xt-n, ... Xt-1]
+      y:  Category(Xt)
     """
-    dic_list: List[Dict[str, Any]] = self.select_data(tb_name)
-    user_list: List[Dict[str, Any]] = self._get_prod_by_user(dic_list)
+    dic_list = self.select_data(tb_name)
+    data_dic = self._get_prod_by_user(dic_list)
+    prod_category_dic = {x['prod_name']: x['category'] for x in dic_list}
 
-    selected_review_list: List[Dict[str, Any]] = []
-    for idx, user_id in enumerate(user_list):
-      if idx == 1: break
-      res = [x for x in dic_list if x['user_id'] == user_id]
-      selected_review_list.extend(res)
+    x, y = [], []
+    for i in data_dic:
+      # 중복이 발생해서 위에서 처리했더라고 상품 갯수가 3개 미만일 수 있어서
+      if len(data_dic[i]) > 2:
+        x.append(data_dic[i][:len(data_dic[i])-1])
+        y.append(prod_category_dic[data_dic[i][-1]])
 
-    print(selected_reivew_list[:5])
+    return x, y
