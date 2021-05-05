@@ -64,23 +64,32 @@ class MongoController(object):
 
     return result
 
-  def _get_user_list(self, dic_list: List[Dict[str, Any]]) -> List[str]:
+  def _get_prod_by_user(self, dic_list: List[Dict[str, Any]]) -> Dict[str, List[str]]:
     """user id가 쇼핑몰명_id+*처리 되있음.
-    그래서 쇼핑몰명, *를 지우고 나서 겹치면 같다고 보고 5개이상 구매한 유저를 return하는 함수
+    그래서 전처리를 수행한 후, 동일 유저로 보고 3개 이상 상품을 구매한 유저 닉네임과 유저의 상품 리스트를 return하는 함수
     Args:
       dic_list: user id가 담겨있는 dict
     Return:
-      suer_list:  selected user list
+      result:  3개 이상 상품을 구매한 유저 닉네임과 유저의 상품 리스트를 담은 딕셔너리
     """
-    user_list = [x['user_id'] for x in dic_list]
-    prep_user_list = [re.split('\*{2,}', x.split('_')[1])[0] for x in user_list]
-    occured_user_dict: Dict[str, int] = dict(collections.Counter(user_list))
+    multiple_list = []
+    for i in dic_list:
+      user_id, prod_name = i['user_id'], i['prod_name']
+      create_date = i['create_date']
+      prep_user_id = re.split('\*{2,}', user_id.split('_')[1])[0].rstrip()
+      if len(prep_user_id) == 0: prep_user_id = 'Anonymous'
+      multiple_list.append([prep_user_id, prod_name, create_date])
 
-    selected_user_list: List[str] = []
-    for i in occured_user_dict:
-      if occured_user_dict[i] > 4:
-        selected_user_list.append(i)
+    user_occurence_dic = dict(collections.Counter([x[0] for x in multiple_list]))
+    result = {}
+    for user_id, prod_name, create_date in sorted(multiple_list, key=lambda x: (x[0], x[2])):
+      if user_occurence_dic[user_id] > 2:
+        if user_id not in result:
+          result[user_id] = [prod_name]
+        else:
+          result[user_id].append(prod_name)
 
+    result = {x: sorted(set(result[x]), key=result[x].index) for x in result}
     return selected_user_list
 
   def get_review(self, tb_name: str) -> List[Dict[str, Any]]:
@@ -91,7 +100,7 @@ class MongoController(object):
       selected_review_list: review list for specific conditions
     """
     dic_list: List[Dict[str, Any]] = self.select_data(tb_name)
-    user_list: List[Dict[str, Any]] = self._get_user_list(dic_list)
+    user_list: List[Dict[str, Any]] = self._get_prod_by_user(dic_list)
 
     selected_review_list: List[Dict[str, Any]] = []
     for idx, user_id in enumerate(user_list):
