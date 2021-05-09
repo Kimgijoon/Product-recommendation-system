@@ -1,6 +1,7 @@
 import re
+import collections
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 from pymongo import MongoClient
 
 from util.preprocess_product import PreprocessData
@@ -43,7 +44,7 @@ class MongoController(object):
 
   def get_prod_name_and_review(self,
                               prod_tb_list: List[str],
-                              review_tb: str) -> Dict[List[str, str]]:
+                              review_tb: str) -> List[Dict[str, str]]:
     """제품명과 제품명에 해당하는 리뷰, 점수를 리턴하는 함수
     Args:
       prod_tb_list: 상품 카테고리 컬렉션 리스트
@@ -96,7 +97,7 @@ class MongoController(object):
           result[user_id].append(prod_name)
 
     result = {x: sorted(set(result[x]), key=result[x].index) for x in result}
-    return selected_user_list
+    return result
 
   def get_train_data(self, tb_name: str='review') -> Tuple[List[str], List[str]]:
     """학습을 위한 데이터를 가져오는 함수
