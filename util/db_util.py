@@ -13,7 +13,7 @@ class MongoController(object):
     self.connection = MongoClient('mongodb://{}:{}@localhost'.format(username, passwd), 27017)
     self.db = self.connection['naver']
 
-    self.prep = PreprocessData
+    self.prep = PreprocessData()
 
   def insert_data(self, data: List, tb_name: str):
     """db>collection에 document insert하는 함수
