@@ -37,6 +37,12 @@ flags.DEFINE_float("short_seq_prob",
                   0.1,
                   "Probability of creating sequences which are shorter than the maximum length.")
 
+# create finetuning data
+flags.DEFINE_string("classify_tfrecord_filename", "classify.tfrecord", "train data name")
+flags.DEFINE_string("classify_val_tfrecord_filename", "classify_val.tfrecord", "validation data name")
+flags.DEFINE_string("classify_json_filename", "classify.json", "train data json format")
+flags.DEFINE_integer("num_val_data", 10000, "validation data size")
+
 # pretrain
 flags.DEFINE_string("config_file", None, "The config json specifies the model architecture.")
 flags.DEFINE_string('data_home_dir', None, "Path to input directory.")
@@ -49,6 +55,7 @@ flags.DEFINE_float('gpu_usage', None, 'use of GPU process memory limit')
 tf.flags.DEFINE_string('category', None, 'Name of category')
 tf.flags.DEFINE_string('config_path', 'configs', 'directory of config file')
 tf.flags.DEFINE_string('config_file', 'category.json', 'config file name')
+tf.flags.DEFINE_string('server_ip', None, 'mongodb server address')
 tf.flags.DEFINE_string('id', None, 'mongodb id')
 tf.flags.DEFINE_string('passwd', None, 'mongodb password')
 
@@ -74,7 +81,9 @@ def main(_):
                           is_training=True)
 
   elif FLAGS.op == 'create_finetune':
-    pass
+    from util.create_finetuning_data import CreateClassifyData
+    cc = CreateClassifyData()
+    cc.run()
 
   elif FLAGS.op == 'finetune':
     pass
@@ -82,7 +91,7 @@ def main(_):
   elif FLAGS.op == 'crawler':
     from util.db_util import MongoController
     from util.crawler.naver_crawler import NaverShoppingCrawler
-    
+
     category_dic_path = f'{FLAGS.config_path}/{FLAGS.config_file}'
     with open(category_dic_path, 'r') as f:
       category_dic = json.loads(f.read())

@@ -9,9 +9,9 @@ from util.preprocess_product import PreprocessData
 
 class MongoController(object):
 
-  def __init__(self, username: str, passwd: str):
+  def __init__(self, username: str, passwd: str, server_ip: str):
 
-    self.connection = MongoClient('mongodb://{}:{}@localhost'.format(username, passwd), 27017)
+    self.connection = MongoClient(f'mongodb://{username}:{passwd}@{server_ip}', 27017)
     self.db = self.connection['naver']
 
     self.prep = PreprocessData()
@@ -106,11 +106,17 @@ class MongoController(object):
     Returns:
       x:  sequence data e.g. [Xt-n, ... Xt-1]
       y:  Category(Xt)
+      prod2idx: product to index
+      labels: label information
     """
     dic_list = self.select_data(tb_name)
     data_dic = self._get_prod_by_user(dic_list)
     prod_category_dic = {self.prep.prep_prod_name(x['category'], x['prod_name']): x['category'] \
                           for x in dic_list}
+    prod2idx = {x[1]: x[0] for x in enumerate(['[CLS]', '[SEP]']+list(prod_category_dic.keys()))}
+
+    collection = self.db.collection_names(include_system_collections=False)
+    labels = {x[1]: x[0] for x in enumerate(collection)}
 
     x, y = [], []
     for i in data_dic:
@@ -119,4 +125,4 @@ class MongoController(object):
         x.append(data_dic[i][:len(data_dic[i])-1])
         y.append(prod_category_dic[data_dic[i][-1]])
 
-    return x, y
+    return x, y, prod2idx, labels
