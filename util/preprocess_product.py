@@ -26,7 +26,7 @@ class PreprocessProduct(object):
         result = re.sub(' ', '', fourth_prep).rstrip().replace('갤럭시폴드', '갤럭시Z폴드')
 
       if len(result) > 1:
-        return result
+        return result.strip()
       else:
         return None
 
@@ -38,7 +38,7 @@ class PreprocessProduct(object):
       result: 전처리된 제품명
     """
     if re.match('갤럭시|아이|서피스', prod_name):
-      result = self.p2.sub('', self.p1.sub('', prod_name))
+      result = self.p2.sub('', self.p1.sub('', prod_name)).strip()
     else:
       result = None
     return result

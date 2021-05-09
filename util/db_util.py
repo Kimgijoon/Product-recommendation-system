@@ -3,6 +3,8 @@ import re
 from typing import List, Dict, Any
 from pymongo import MongoClient
 
+from util.preprocess_product import PreprocessData
+
 
 class MongoController(object):
 
@@ -10,6 +12,8 @@ class MongoController(object):
 
     self.connection = MongoClient('mongodb://{}:{}@localhost'.format(username, passwd), 27017)
     self.db = self.connection['naver']
+
+    self.prep = PreprocessData
 
   def insert_data(self, data: List, tb_name: str):
     """db>collection에 document insert하는 함수
@@ -74,9 +78,11 @@ class MongoController(object):
     """
     multiple_list = []
     for i in dic_list:
-      user_id, prod_name = i['user_id'], i['prod_name']
+      user_id = i['user_id']
+      if self.prep.prep_prod_name(i['category'], i['prod_name']) != None:
+        prod_name = self.prep.prep_prod_name(i['category'], i['prod_name'])
       create_date = i['create_date']
-      prep_user_id = re.split('\*{2,}', user_id.split('_')[1])[0].rstrip()
+      prep_user_id = re.split('\*{2,}', user_id.split('_')[1])[0].strip()
       if len(prep_user_id) == 0: prep_user_id = 'Anonymous'
       multiple_list.append([prep_user_id, prod_name, create_date])
 
@@ -102,7 +108,8 @@ class MongoController(object):
     """
     dic_list = self.select_data(tb_name)
     data_dic = self._get_prod_by_user(dic_list)
-    prod_category_dic = {x['prod_name']: x['category'] for x in dic_list}
+    prod_category_dic = {self.prep.prep_prod_name(x['category'], x['prod_name']): x['category'] \
+                          for x in dic_list}
 
     x, y = [], []
     for i in data_dic:
