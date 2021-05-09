@@ -30,8 +30,8 @@ class PreprocessProduct(object):
       else:
         return None
 
-    def _prep_tablet(self, prod_name):
-      """테블릿 제품명 정규식으로 전처리하는 함수
+  def _prep_tablet(self, prod_name):
+    """테블릿 제품명 정규식으로 전처리하는 함수
     Args:
       prod_name:  제품명
     Return:
