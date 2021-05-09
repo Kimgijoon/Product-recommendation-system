@@ -49,10 +49,14 @@ python3 main.py --op=pretrain \
                 --config_file=config/electra_albert_base.json
 ```
 
-## Create pretrain data
+## Create finetuning data
 example:
 ```
-python3 main.py --op=create_finetune
+python3 main.py --op=create_finetune \
+                --data_home_dir=data/finetune \ 
+                --id=mongodb user id \
+                --passwd=mongodb user password \
+                --server_ip=mongodb server address
 ```
 
 ## Directory
