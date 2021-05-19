@@ -65,7 +65,7 @@ class CreateClassifyData(object):
     tfrecord_output_path = os.path.join(data_dir, FLAGS.classify_tfrecord_filename)
     val_tfrecord_output_path = os.path.join(data_dir, FLAGS.classify_val_tfrecord_filename)
     json_output_path = os.path.join(data_dir, FLAGS.classify_json_filename)
-    prod2idx_output_path = os.path.join(data_dir, FLAGS.prodidx_filename)
+    prod2idx_output_path = os.path.join(data_dir, FLAGS.prod2idx_filename)
     labels_output_path = os.path.join(data_dir, FLAGS.label_filename)
     test_set_path = os.path.join(data_dir, FLAGS.test_filename)
 
