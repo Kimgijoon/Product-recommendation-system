@@ -7,6 +7,7 @@ import logging
 import tensorflow as tf
 from rich.logging import RichHandler
 from typing import List, Dict, Optional
+from sklearn.model_selection import train_test_split
 
 from util.db_util import MongoController
 
@@ -66,9 +67,18 @@ class CreateClassifyData(object):
     json_output_path = os.path.join(data_dir, FLAGS.classify_json_filename)
     prod2idx_output_path = os.path.join(data_dir, FLAGS.prodidx_filename)
     labels_output_path = os.path.join(data_dir, FLAGS.label_filename)
+    test_set_path = os.path.join(data_dir, FLAGS.test_filename)
 
     # Reading input raw data
     x, y, prod2idx, labels = db.get_train_data()
+
+    # split data
+    train_ratio, valid_ratio, test_ratio = [float(x) for x in FLAGS.split_ratio.split(',')]
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=1 - train_ratio)
+    x_val, x_test, y_val, y_test = train_test_split(x_test,
+                                                    y_test,
+                                                    test_size=test_ratio / (test_ratio + valid_ratio))
+    x, y = x_train + x_val, y_train + y_val
 
     input_examples = []
     for i in range(len(x)):
@@ -114,7 +124,7 @@ class CreateClassifyData(object):
       json_features["segment_ids"] = feature.segment_ids
       json_features["label_id"] = feature.label_id
 
-      if val_written_count < FLAGS.num_val_data:
+      if val_written_count < len(x_val):
           # val Wrtier
           val_tfrecord_writer.write(tf_example.SerializeToString())
           val_written_count += 1
@@ -135,6 +145,9 @@ class CreateClassifyData(object):
 
     with open(labels_output_path, 'w') as f:
       f.write(json.dumps(labels, ensure_ascii=False))
+
+    with open(test_set_path, 'w') as f:
+      f.write(json.dumps({'x': x_test, 'y': y_test}, ensure_ascii=False))
 
 
 def convert_single_example(example: List[ClassifyInputExample],

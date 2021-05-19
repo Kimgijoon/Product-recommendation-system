@@ -41,7 +41,10 @@ flags.DEFINE_float("short_seq_prob",
 flags.DEFINE_string("classify_tfrecord_filename", "classify.tfrecord", "train data name")
 flags.DEFINE_string("classify_val_tfrecord_filename", "classify_val.tfrecord", "validation data name")
 flags.DEFINE_string("classify_json_filename", "classify.json", "train data json format")
-flags.DEFINE_integer("num_val_data", 10000, "validation data size")
+flags.DEFINE_string("prod2idx_filename", "prod2idx.json", "product to index file")
+flags.DEFINE_string("label_filename", "label.json", "label file")
+flags.DEFINE_string("test_filename", "test_set.json", "test set file")
+flags.DEFINE_string("split_ratio", '0.6, 0.3, 0.1', "data split ratio")
 
 # pretrain
 flags.DEFINE_string("config_file", None, "The config json specifies the model architecture.")
