@@ -4,7 +4,7 @@ import collections
 import numpy as np
 import tensorflow.compat.v1 as tf
 
-import src.elctra_albert as modeling
+import src.electra_albert as modeling
 from util.tf_util import TFHelper
 from util.tokenizer.vocab import Vocab
 from util.tokenizer.mecab_tokenizer import MeCabTokenizer

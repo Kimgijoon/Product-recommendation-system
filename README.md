@@ -46,7 +46,7 @@ python3 main.py --op=pretrain \
                 --data_home_dir=data \
                 --checkpoint_dir=checkpoint \
                 --tokenizer_dir=resources/mecab_sp-32k \
-                --config_file=config/electra_albert_base.json
+                --model_config_file=config/electra_albert_base.json
 ```
 
 ## Create finetuning data

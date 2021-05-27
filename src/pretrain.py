@@ -35,7 +35,8 @@ class PretrainModel(object):
                         format=FORMAT,
                         datefmt="[%X]",
                         handlers=[RichHandler()])
-
+    self.logger = logging.getLogger("rich")
+    
     # load config file
     with open(config_file, 'r') as f:
       config = json.loads(f.read())
@@ -88,7 +89,7 @@ class PretrainModel(object):
     """정의된 모델을 compile하는 함수"""
     data_dir = os.path.join(self.data_home_dir, self.workspace)
     tfrecord_file_path = [os.path.join(data_dir, x) for x in os.listdir(data_dir) if x.endswith('.tfrecord')]
-    features, _, input_initializer = self.util.get_features_from_tfrecords(tfrecord_file_path, self.config.batch_size, self.is_training)
+    features, _, input_initializer = self.util.get_features_from_tfrecords(tfrecord_file_path, self.config.batch_size, 'pretrain', self.is_training)
     self.input_initializer = input_initializer
 
     self.input_ids = input_ids = tf.placeholder_with_default(features['input_ids'],
@@ -173,7 +174,7 @@ class PretrainModel(object):
     max_to_keep = max(self.config.num_epochs, (self.config.num_train_steps // 1000) + 1)
     train_summary_writer = tf.summary.FileWriter(summary_path, self.sess.graph)
     epoch_saver = tf.train.Saver(tf.global_variables(), max_to_keep = max_to_keep)
-    self.logger.info(f'Saver max_to_keep: {maz_to_keep}')
+    self.logger.info(f'Saver max_to_keep: {max_to_keep}')
 
     # initialize model
     self.sess.run(tf.local_variables_initializer())

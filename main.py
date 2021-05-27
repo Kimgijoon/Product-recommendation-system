@@ -28,7 +28,7 @@ flags.DEFINE_bool("do_lower_case",
 flags.DEFINE_bool("do_whole_word_mask",
                   False,
                   "Whether to use whole word masking rather than per-WordPiece masking.")
-flags.DEFINE_integer("max_seq_length", 512, "Maximum sequence length.")
+flags.DEFINE_integer("max_seq_length", 256, "Maximum sequence length.")
 flags.DEFINE_integer("max_predictions_per_seq", 20, "Maximum number of masked LM predictions per sequence.")
 flags.DEFINE_integer("random_seed", 12345, "Random seed for data generation.")
 flags.DEFINE_integer("dupe_factor", 1, "Number of times to duplicate the input data (with different masks).")
@@ -47,7 +47,7 @@ flags.DEFINE_string("test_filename", "test_set.json", "test set file")
 flags.DEFINE_string("split_ratio", '0.6, 0.3, 0.1', "data split ratio")
 
 # pretrain
-flags.DEFINE_string("config_file", None, "The config json specifies the model architecture.")
+flags.DEFINE_string("model_config_file", None, "The config json specifies the model architecture.")
 flags.DEFINE_string('data_home_dir', None, "Path to input directory.")
 flags.DEFINE_string('checkpoint_dir', None, '')
 flags.DEFINE_string('tokenizer_dir', None, '')
@@ -74,15 +74,16 @@ def main(_):
 
   elif FLAGS.op == 'pretrain':
     from src.pretrain import PretrainModel
-    model = PretrainModel(FLAGS.config_file,
-                          FLAGS.tokenizer_dir,
+    model = PretrainModel(FLAGS.model_config_file,
                           FLAGS.data_home_dir,
                           FLAGS.op,
+                          FLAGS.tokenizer_dir,
                           FLAGS.checkpoint_dir,
                           FLAGS.gpu_num,
                           FLAGS.gpu_usage,
                           is_training=True)
-
+    model.fit()
+    
   elif FLAGS.op == 'create_finetune':
     from util.create_finetuning_data import CreateClassifyData
     cc = CreateClassifyData()
