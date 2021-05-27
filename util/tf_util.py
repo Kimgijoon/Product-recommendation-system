@@ -8,7 +8,7 @@ import tensorflow.compat.v1 as tf
 
 
 class TFHelper(object):
-  
+
   def __init__(self, max_seq_length: int):
 
     self.max_seq_length = max_seq_length
@@ -75,8 +75,8 @@ class TFHelper(object):
 
     return ret
 
-  def _parser(self, tfrecord):
-    """tfrecord 파일을 읽는 함수
+  def _pretrain_parser(self, tfrecord):
+    """pretrain tfrecord 파일을 읽는 함수
     Args:
       tfrecord: tfrecord 파일
     Returns:
@@ -96,9 +96,35 @@ class TFHelper(object):
 
     return example
 
+  def _finetune_parser(self, tfrecord):
+    """finetuning tfrecord 파일을 읽는 함수
+    Args:
+      tfrecord: tfrecord 파일
+    Returns:
+      example:  tfrecord에서 읽어온 데이터
+    """
+    label_size = 1
+
+    name_to_features = {
+      'input_ids': tf.FixedLenFeature([self.max_seq_length], tf.int64),
+      'input_mask': tf.FixedLenFeature([self.max_seq_length], tf.int64),
+      'segment_ids': tf.FixedLenFeature([self.max_seq_length], tf.int64),
+      'label_id': tf.FixedLenFeature([label_size], tf.int64)
+    }
+
+    example = tf.io.parse_single_example(tfrecord, name_to_features)
+    for name in list(example.keys()):
+      t = example[name]
+      if t.dtype == tf.int64:
+        t = tf.cast(t, dtype=tf.int32)
+      example[name] = t
+
+    return example
+
   def get_features_from_tfrecords(self,
                                   tfrecord_path: Union[List, str],
                                   batch_size: int,
+                                  mode,
                                   is_training: bool):
     """tfrecord를 읽은 뒤 config에 맞게 데이터를 만드는 함수
     Args:
@@ -124,10 +150,16 @@ class TFHelper(object):
     else:
       d = tf.data.TFRecordDataset(tfrecord_path)
 
-    d = d.apply(tf.data.experimental.map_and_batch(lambda record: self._parser(record),
+    if mode == 'pretrain':
+      d = d.apply(tf.data.experimental.map_and_batch(lambda record: self._pretrain_parser(record),
                                                   batch_size=batch_size,
                                                   num_parallel_batches=4,
                                                   drop_remainder=True))
+    else:
+      d = d.apply(tf.data.experimental.map_and_batch(lambda record: self._finetune_parser(record),
+                                                    batch_size=batch_size,
+                                                    num_parallel_batches=4,
+                                                    drop_remainder=True))
 
     tfrecord_iterator = d.make_initializable_iterator()
     tfrecord_iterator_initializer = tfrecord_iterator.make_initializer(d, name='tfrecord_iterator_initializer')
