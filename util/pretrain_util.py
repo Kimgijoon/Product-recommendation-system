@@ -4,12 +4,12 @@ import collections
 import numpy as np
 import tensorflow.compat.v1 as tf
 
-import src.albert as modeling
+import src.elctra_albert as modeling
 from util.tf_util import TFHelper
-from util.vocab import Vocab
-from util.mecab_tokenizer import MeCabTokenizer
-from util.sp_tokenizer import SentencePieceTokenizer
-from util.mecab_sp_tokenizer import MeCabSentencePieceTokenizer
+from util.tokenizer.vocab import Vocab
+from util.tokenizer.mecab_tokenizer import MeCabTokenizer
+from util.tokenizer.sp_tokenizer import SentencePieceTokenizer
+from util.tokenizer.mecab_sp_tokenizer import MeCabSentencePieceTokenizer
 
 
 class PretrainHelper(object):

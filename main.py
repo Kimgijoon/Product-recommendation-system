@@ -74,8 +74,8 @@ def main(_):
 
   elif FLAGS.op == 'pretrain':
     from src.pretrain import PretrainModel
-    model = PretrainModel(FLAGS.tokenizer_dir,
-                          FLAGS.config_file,
+    model = PretrainModel(FLAGS.config_file,
+                          FLAGS.tokenizer_dir,
                           FLAGS.data_home_dir,
                           FLAGS.op,
                           FLAGS.checkpoint_dir,

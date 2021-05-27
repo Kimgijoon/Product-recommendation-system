@@ -55,7 +55,7 @@ class PretrainModel(object):
     self.sess = self.util.make_session(gpu_num, gpu_usage)
     self._build_model()
 
-def get_loss_and_acc(self, dic: Dict[str, tf.Tensor]) -> Dict[str, tf.Tensor]:
+  def get_loss_and_acc(self, dic: Dict[str, tf.Tensor]) -> Dict[str, tf.Tensor]:
     """mlm loss, acc와 discriminator loss, acc를 계산하는 함수
     Args:
       dic:  모델 평가를 위한 항목들을 담은 dict
